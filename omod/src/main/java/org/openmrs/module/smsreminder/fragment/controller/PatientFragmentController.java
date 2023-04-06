@@ -101,7 +101,7 @@ public class PatientFragmentController {
 				        + "\",\"mobileNumber\":\"" + phoneNumbers + "\",\"route\":\"1\"}");
 				Request request = new Request.Builder().url("https://api.smslive247.com/api/v4/sms").post(body)
 				        .addHeader("accept", "application/json").addHeader("content-type", "application/*+json")
-				        .addHeader("Authorization", "MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f").build();
+				        .addHeader("Authorization", "MA-80b6f4e3-071f-").build();
 				
 				Response response = client.newCall(request).execute();
 				if (response.code() == 200) {
@@ -113,7 +113,7 @@ public class PatientFragmentController {
 				
 			} else {
 				URL url = new URL(
-				        "https://api2.infobip.com/api/sendsms/plain?user=SteveJ&password=%40%40Health2345&type=LongSMS&sender=IHVN&SMS&appid="
+				        "https://api2.infobip.com/api/sendsms/plain?user=SteveJ&password=%40%40H&type=LongSMS&sender=IHVN&SMS&appid="
 				                + appId + "&GSM=" + phoneNumbers + "&Text=" + message);
 				
 				StringBuilder strBuf = new StringBuilder();

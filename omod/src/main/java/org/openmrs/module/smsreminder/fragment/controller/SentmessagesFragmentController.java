@@ -41,7 +41,7 @@ public class SentmessagesFragmentController {
 		
 		//add request header
 		con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		con.setRequestProperty("Authorization", "MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f");
+		con.setRequestProperty("Authorization", "MA-80b6f4e3");
 		int responseCode = con.getResponseCode();
 		System.out.println("\nSending 'GET' request to URL : " + url);
 		System.out.println("Response Code : " + responseCode);
