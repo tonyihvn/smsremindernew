@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="target1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/omod/target/smsreminder-1.0.0-SNAPSHOT-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/omod/target/smsreminder-1.0.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

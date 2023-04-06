@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="target">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/api/target/smsreminder-api-1.0.0-SNAPSHOT-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/api/target/smsreminder-api-1.0.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
