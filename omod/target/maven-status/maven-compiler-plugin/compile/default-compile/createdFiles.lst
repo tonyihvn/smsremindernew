@@ -1,8 +1,5 @@
-org\openmrs\module\smsreminder\fragment\controller\UsersFragmentController.class
 org\openmrs\module\smsreminder\fragment\controller\SettingsFragmentController.class
 org\openmrs\module\smsreminder\fragment\controller\NumberchecksFragmentController.class
 org\openmrs\module\smsreminder\fragment\controller\SentmessagesFragmentController.class
 org\openmrs\module\smsreminder\fragment\controller\PatientFragmentController.class
 org\openmrs\module\smsreminder\fragment\controller\InvalidnumbersFragmentController.class
-org\openmrs\module\smsreminder\extension\html\AdminList.class
-org\openmrs\module\smsreminder\web\controller\SmsreminderController.class

@@ -16,6 +16,7 @@ public class DateFormatter {
 	/**
 	 * @param myDate
 	 * @return
+	 * @throws java.text.ParseException
 	 */
 	public static String formatDate(String myDate) throws java.text.ParseException {
 		
@@ -31,9 +32,7 @@ public class DateFormatter {
 		if (strNum == null) {
 			return false;
 		}
-		try {
-			double d = Double.parseDouble(strNum);
-		}
+		try {}
 		catch (NumberFormatException nfe) {
 			return false;
 		}

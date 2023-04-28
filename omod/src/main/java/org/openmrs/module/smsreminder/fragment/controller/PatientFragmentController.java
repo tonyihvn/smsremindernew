@@ -81,7 +81,7 @@ public class PatientFragmentController {
 	private String postSMS(String message, String phoneNumbers, String Route, String cmessage, String title)
 	        throws Exception {
 		
-		System.out.println("SENING " + message + " TO " + phoneNumbers);
+		System.out.println("SENDING " + message + " TO " + phoneNumbers);
 		String result = "";
 		try {
 			String appId = Long.toString(new Date().getTime());
@@ -101,7 +101,7 @@ public class PatientFragmentController {
 				        + "\",\"mobileNumber\":\"" + phoneNumbers + "\",\"route\":\"1\"}");
 				Request request = new Request.Builder().url("https://api.smslive247.com/api/v4/sms").post(body)
 				        .addHeader("accept", "application/json").addHeader("content-type", "application/*+json")
-				        .addHeader("Authorization", "MA-80b6f4e3-071f-").build();
+				        .addHeader("Authorization", "").build();
 				
 				Response response = client.newCall(request).execute();
 				if (response.code() == 200) {
@@ -113,7 +113,7 @@ public class PatientFragmentController {
 				
 			} else {
 				URL url = new URL(
-				        "https://api2.infobip.com/api/sendsms/plain?user=SteveJ&password=%40%40H&type=LongSMS&sender=IHVN&SMS&appid="
+				        "https://api2.infobip.com/api/sendsms/plain?user=SteveJ&password=%40%40Health2345&type=LongSMS&sender=IHVN&SMS&appid="
 				                + appId + "&GSM=" + phoneNumbers + "&Text=" + message);
 				
 				StringBuilder strBuf = new StringBuilder();
@@ -124,6 +124,7 @@ public class PatientFragmentController {
 				Map<String, String> parameters = new HashMap<String, String>();
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());
+				
 				out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
 				System.out.println(con.getResponseCode());
 				

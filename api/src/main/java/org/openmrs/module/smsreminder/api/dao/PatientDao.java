@@ -143,4 +143,34 @@ public class PatientDao {
             Database.cleanUp(rs, stmt, con);
         }
     }
+	
+	public List<String> getAllPatientsPhoneNumbers() throws SQLException {             
+        
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
+        List<String> allPatientPhoneNumbers = new ArrayList<>();
+        try {
+
+            con = Database.connectionPool.getConnection();
+
+
+            String query = "SELECT DISTINCT person_attribute.value AS phone_number FROM person_attribute"
+                    +  " JOIN obs ON obs.person_id=person_attribute.person_id AND obs.concept_id=5096 AND DATE(obs.value_datetime) >= DATE(NOW()) - INTERVAL 30 DAY"                    
+                    + " where person_attribute.voided=0";
+            stmt = con.prepareStatement(query);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                allPatientPhoneNumbers.add(rs.getString("phone_number"));
+            }
+            return allPatientPhoneNumbers;
+            
+        } catch (SQLException ex) {
+            Database.handleException(ex);
+            return null;
+        } finally {
+            Database.cleanUp(rs, stmt, con);
+        }
+    }
 }

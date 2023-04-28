@@ -56,11 +56,38 @@
     <hr>
 
         <div id="sentmessagesArea">Retrieving sent messages, please wait ...</div>
+        <h6>Note: You can see report for last 30 days </h6>
      
 
         
 <script type="text/javascript">
+    
+    var cleanedPhoneNumber = "";
+    var allphonenumbers = [];
 
+    <%     
+        if (allPatientsPhoneNumbers != null && allPatientsPhoneNumbers.size()) {
+            for (int i = 0; i < allPatientsPhoneNumbers.size(); i++) {               
+    %>
+                cleanedPhoneNumber = <%= allPatientsPhoneNumbers.get(i); %>;
+                cleanedPhoneNumber = cleanedPhoneNumber.toString().replace(' ', '').replace('-', '')
+                
+                // console.log("Cleaned Number:"+cleanedPhoneNumber);
+                if (cleanedPhoneNumber.toString().length >=10) {
+                    cleanedPhoneNumber.toString().indexOf('0') == 0 ? cleanedPhoneNumber = cleanedPhoneNumber.replace('0', '234') : cleanedPhoneNumber;
+                    if (cleanedPhoneNumber.toString().substring(0, 3) != '234') {
+                        cleanedPhoneNumber = '234' + cleanedPhoneNumber;
+                    }
+                    
+                    allphonenumbers.push(cleanedPhoneNumber);   
+                }
+                    
+    <%
+            }
+        }
+    %>
+    
+    
 
     var jq = jQuery;
 
@@ -87,15 +114,19 @@
                 if (sentmessages != null) {
                    
                     for (var i = 0; i < sentmessages.data.length; i++) {
+                        
+                        if(allphonenumbers.includes(sentmessages.data[i]["mobileNumber"]))
+                        {
                        
-                        html += "<tr>";
-                        html += '<td>-</td>';
-                        html += '<td>' + sentmessages.data[i]["mobileNumber"] + '</td>';
-                        html += '<td>' + sentmessages.data[i]["messageText"] + '</td>';
-                        html += '<td>' + sentmessages.data[i]["reports"][0]["status"] + '</td>';
-                        html += '<td>' + sentmessages.data[i]["submitDate"] + '</td>';
-                       
-                        html += "</tr>";                  
+                            html += "<tr>";
+                            html += '<td>-</td>';
+                            html += '<td>' + sentmessages.data[i]["mobileNumber"] + '</td>';
+                            html += '<td>' + sentmessages.data[i]["messageText"] + '</td>';
+                            html += '<td>' + sentmessages.data[i]["reports"][0]["status"] + '</td>';
+                            html += '<td>' + sentmessages.data[i]["submitDate"] + '</td>';
+
+                            html += "</tr>"; 
+                        }
                     }
 
                     html += "</tbody></table>";

@@ -107,7 +107,7 @@
             </td>
             <td><a class="btn btn-primary btn-sm" style=" color: white !important" href="#" id="sendSMS" onclick="return confirm('Are you sure you want to send SMS to selected patients?')">Send SMS</a>
             </td>
-            <td><a href="numberchecks.page" class="btn btn-warning btn-sm">Phone Number Validation</a></td>
+            <!--<td><a href="numberchecks.page" class="btn btn-warning btn-sm">Phone Number Validation</a></td>-->
             <!-- <td><a href="invalidnumbers.page" class="btn btn-danger btn-sm" style="color: white !important;">Invalid Numbers</a>-->
 
             <td><a href="sentmessages.page" class="btn btn-success btn-sm" style="color: white !important;">Sent Messages</a>

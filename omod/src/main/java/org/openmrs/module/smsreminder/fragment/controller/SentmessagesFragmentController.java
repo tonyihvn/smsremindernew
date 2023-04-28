@@ -5,6 +5,7 @@
  */
 package org.openmrs.module.smsreminder.fragment.controller;
 
+import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -15,14 +16,22 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import org.openmrs.module.smsreminder.api.dao.Database;
+import org.openmrs.module.smsreminder.api.dao.PatientDao;
 
 /**
  * @author Tony
  */
 public class SentmessagesFragmentController {
 	
+	PatientDao patientDao = new PatientDao();
+	
 	public void controller(FragmentModel model) throws Exception {
-		
+		Database.initConnection();
+		List<String> allPatientsPhoneNumbers = patientDao.getAllPatientsPhoneNumbers();
+		// System.out.println("All Phone Numbers: " + allPatientsPhoneNumbers);
+		model.addAttribute("allPatientsPhoneNumbers", allPatientsPhoneNumbers);
 	}
 	
 	public String getSentMessages(HttpServletRequest request) throws Exception {
@@ -31,7 +40,11 @@ public class SentmessagesFragmentController {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String today = dateObj.format(formatter);
 		
-		String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom=2023-01-01&DateTo=" + today;
+		LocalDate thirtyDaysAgo = dateObj.minusDays(30);
+		System.out.println("30 days Ago: " + thirtyDaysAgo);
+		// String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom=2023-01-01&DateTo=" + today;
+		String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom=" + thirtyDaysAgo + "&DateTo="
+		        + today;
 		
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -41,7 +54,7 @@ public class SentmessagesFragmentController {
 		
 		//add request header
 		con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		con.setRequestProperty("Authorization", "MA-80b6f4e3");
+		con.setRequestProperty("Authorization", "");
 		int responseCode = con.getResponseCode();
 		System.out.println("\nSending 'GET' request to URL : " + url);
 		System.out.println("Response Code : " + responseCode);

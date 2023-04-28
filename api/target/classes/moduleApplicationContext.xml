@@ -19,32 +19,4 @@
             <ref bean="dbSessionFactory"/>
         </property>
     </bean>
-    <bean id="smsreminder.SmsreminderService"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="transactionManager"/>
-        </property>
-        <property name="target">
-            <bean class="org.openmrs.module.smsreminder.api.impl.SmsreminderServiceImpl">
-                <property name="dao" ref="smsreminder.SmsreminderDao"/>
-            </bean>
-        </property>
-        <property name="preInterceptors">
-            <ref bean="serviceInterceptors"/>
-        </property>
-        <property name="transactionAttributeSource">
-            <ref bean="transactionAttributeSource"/>
-        </property>
-    </bean>
-
-    <!-- Adds SmsreminderService to OpenMRS context so it can be accessed
-    calling Context.getService(SmsreminderService.class) -->
-    <bean parent="serviceContext">
-        <property name="moduleService">
-            <list>
-                <value>org.openmrs.module.smsreminder.api.SmsreminderService</value>
-                <ref bean="smsreminder.SmsreminderService"/>
-            </list>
-        </property>
-    </bean>
 </beans>

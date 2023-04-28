@@ -48,7 +48,7 @@
         <constraints nullable="false"/>
     </column>
     <column name="voided_by" type="int"/>
-    -->
+    
 
     <changeSet author="Tony Nwokoma" id="2021101-2">
         <preConditions onFail="MARK_RAN">
@@ -66,7 +66,7 @@
             <column name="consent" type="varchar(25)"/>
         </createTable>
     </changeSet>
-    <!--
+    
     <changeSet author="Tony Nwokoma" id="2023018-3">
         <preConditions onFail="MARK_RAN">
             <not>
