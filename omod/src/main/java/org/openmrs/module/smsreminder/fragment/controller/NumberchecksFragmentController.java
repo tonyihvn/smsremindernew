@@ -12,6 +12,7 @@ import org.openmrs.module.smsreminder.api.dao.NumberChecksDao;
 import org.openmrs.ui.framework.fragment.FragmentModel;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -32,32 +33,15 @@ public class NumberchecksFragmentController {
 		if (lastNumberChecks == null) {
 			lastNumberChecks = "1990-01-01";
 		}
+		if (!allNumbers.isEmpty()) {
+			System.out.println("Total Numbers:" + allNumbers.size());
+		} else {
+			allNumbers = new ArrayList<Map<String, String>>();
+		}
 		
 		model.addAttribute("numbers", allNumbers);
 		model.addAttribute("lastNumberChecks", lastNumberChecks);
 		model.addAttribute("dformatter", DateFormatter.class);
-	}
-	
-	public String saveComment(HttpServletRequest request) {
-		
-		try {
-			
-			String comment = request.getParameter("comment");
-			int patient_id = Integer.parseInt(request.getParameter("patient_id"));
-			
-			//String phoneNumbers1 = "2348025254999,2348114452906";
-			// String phoneNumbers2 = "2347067973091";
-			
-			numbersDao.addComments(comment, patient_id);
-			
-			this.updateCheckStatus();
-			return "true";
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-			//Logger.getLogger(PatientFragmentController.class.getName()).log(Level.SEVERE, null, ex);
-			return "false";
-		}
 	}
 	
 	public String saveConsent(HttpServletRequest request) {
@@ -70,7 +54,7 @@ public class NumberchecksFragmentController {
 			//String phoneNumbers1 = "2348025254999,2348114452906";
 			// String phoneNumbers2 = "2347067973091";
 			
-			numbersDao.addConsent(consent, patient_id);
+			numbersDao.addConsent(patient_id, consent);
 			
 			this.updateCheckStatus();
 			return "true";

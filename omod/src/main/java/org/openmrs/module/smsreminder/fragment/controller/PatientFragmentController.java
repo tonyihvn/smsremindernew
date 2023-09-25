@@ -12,13 +12,18 @@ import org.openmrs.module.smsreminder.ParameterStringBuilder;
 import org.openmrs.module.smsreminder.api.dao.Database;
 import org.openmrs.module.smsreminder.api.dao.DateFormatter;
 import org.openmrs.module.smsreminder.api.dao.PatientDao;
+import org.openmrs.module.smsreminder.api.dao.NumberChecksDao;
 import org.openmrs.ui.framework.fragment.FragmentModel;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import okhttp3.*;
 
 /**
@@ -39,6 +44,7 @@ public class PatientFragmentController {
 		lastSentDate = Context.getAdministrationService().getGlobalProperty("last_sms_reminder");
 		if (lastSentDate == null) {
 			lastSentDate = "1990-01-01";
+			this.updateIdentifierType();
 		}
 		
 		model.addAttribute("patients", allPatients);
@@ -71,7 +77,7 @@ public class PatientFragmentController {
 			return result;
 		}
 		catch (Exception ex) {
-			System.out.println("failed");
+			System.out.println(ex.toString());
 			//Logger.getLogger(PatientFragmentController.class.getName()).log(Level.SEVERE, null, ex);
 			return result;
 		}
@@ -80,30 +86,37 @@ public class PatientFragmentController {
 	
 	private String postSMS(String message, String phoneNumbers, String Route, String cmessage, String title)
 	        throws Exception {
-		
-		System.out.println("SENDING " + message + " TO " + phoneNumbers);
 		String result = "";
+		
 		try {
 			String appId = Long.toString(new Date().getTime());
 			message = String.valueOf(message);
 			
 			if (!cmessage.trim().equals("")) {
 				message = cmessage;
-				System.out.println(message);
+				// System.out.println(message);
 			}
 			
 			if (Route.trim().equals("second")) {
 				
 				OkHttpClient client = new OkHttpClient();
 				
+				OkHttpClient.Builder builder = new OkHttpClient.Builder();
+				builder.connectTimeout(60, TimeUnit.SECONDS);
+				builder.readTimeout(60, TimeUnit.SECONDS);
+				builder.writeTimeout(60, TimeUnit.SECONDS);
+				client = builder.build();
+				
 				MediaType mediaType = MediaType.parse("application/*+json");
 				RequestBody body = RequestBody.create(mediaType, "{\"senderID\":\"Forward\",\"messageText\":\"" + message
 				        + "\",\"mobileNumber\":\"" + phoneNumbers + "\",\"route\":\"1\"}");
 				Request request = new Request.Builder().url("https://api.smslive247.com/api/v4/sms").post(body)
 				        .addHeader("accept", "application/json").addHeader("content-type", "application/*+json")
-				        .addHeader("Authorization", "").build();
+				        .addHeader("Authorization", "MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f").build();
 				
 				Response response = client.newCall(request).execute();
+				
+				// System.out.println("Response: " + response.code());
 				if (response.code() == 200) {
 					System.out.println("RESPONSE AFTER SENT MESSAGE: " + response);
 					result = "Successful";
@@ -129,19 +142,19 @@ public class PatientFragmentController {
 				System.out.println(con.getResponseCode());
 				
 				BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
-				String output = null;
+				String output;
 				while ((output = reader.readLine()) != null)
 					strBuf.append(output);
 				
-				System.out.println(strBuf.toString());
+				// System.out.println(strBuf.toString());
 				out.flush();
 				out.close();
 				
 				result = "Successful";
 			}
 		}
-		catch (IOException ex) {
-			
+		catch (Exception e) {
+			System.out.println(e.toString());
 			result = "Error! Please check your internet connection and try again";
 		}
 		return result;
@@ -216,6 +229,24 @@ public class PatientFragmentController {
 		in.close();
 		
 		return response.toString();
+	}
+	
+	public String updateIdentifierType() throws SQLException {
+		NumberChecksDao numberChecksDao = new NumberChecksDao();
+		PreparedStatement stmt;
+		java.sql.Connection con = Database.connectionPool.getConnection();
+		String uuid = numberChecksDao.generateMDString().toString();
+		Calendar now = Calendar.getInstance();
+		String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH) + 1) + "-" + now.get(Calendar.DATE);
+		// JSON
+		String query = "REPLACE INTO patient_identifier_type  (patient_identifier_type_id,name,description,check_digit,creator,date_created,required,retired,uuid) VALUES (99,'Consent','Permission for SMS Reminder',0,1,?,0,0,?)";
+		int i = 1;
+		stmt = con.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		stmt.setString(i++, today);
+		stmt.setString(i++, uuid);
+		stmt.executeUpdate();
+		System.out.println("INSERTED IDENTIFIER TYPE!");
+		return "INSERTED IDENTIFIER TYPE!";
 	}
 	
 }

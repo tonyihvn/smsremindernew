@@ -51,11 +51,12 @@ public class PatientDao {
             con = Database.connectionPool.getConnection();
 
 
-            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id FROM patient"
+            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id, consent.identifier AS consent FROM patient"
                     + " LEFT JOIN patient_identifier ON patient_identifier.patient_id=patient.patient_id AND patient_identifier.identifier_type=4 "
                     + " JOIN patient_identifier hospno ON hospno.patient_id=patient.patient_id AND hospno.identifier_type=5 "
                     + " LEFT JOIN person_attribute ON person_attribute.person_id=patient.patient_id AND person_attribute.person_attribute_type_id=8"
                     + " JOIN patient_program ON patient_program.patient_id=patient.patient_id AND patient_program.program_id=?"
+                    + " LEFT JOIN patient_identifier consent ON consent.patient_id=patient.patient_id AND consent.identifier_type=99"
                     + " JOIN obs ON obs.person_id=patient.patient_id AND (DATEDIFF(obs.value_datetime, CURDATE()) = 1 OR DATEDIFF(obs.value_datetime, CURDATE()) = 2)"
                     + " where patient.voided=0 AND person_attribute.voided=0";
 
@@ -72,6 +73,7 @@ public class PatientDao {
                 tempMap.put("next_date", rs.getString("next_date"));
                 tempMap.put("pepfar_id", rs.getString("pepfar_id"));
                 tempMap.put("hospitalNumber", rs.getString("hospitalNumber"));
+                tempMap.put("consent", rs.getString("consent"));
                 allPatients.add(tempMap);
             }
             return allPatients;
@@ -104,12 +106,13 @@ public class PatientDao {
 
             //stmt = Database.conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
 
-            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id FROM patient"
+            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id, consent.identifier AS consent FROM patient"
                     + " LEFT JOIN patient_identifier ON patient_identifier.patient_id=patient.patient_id AND patient_identifier.identifier_type=4 "
                     + " JOIN patient_identifier hospno ON hospno.patient_id=patient.patient_id AND hospno.identifier_type=5 "
                     + " LEFT JOIN person_attribute ON person_attribute.person_id=patient.patient_id AND person_attribute.person_attribute_type_id=8"
                     + " JOIN obs ON obs.person_id=patient.patient_id AND obs.concept_id=5096 AND obs.value_datetime BETWEEN ? AND ?"
                     + " RIGHT JOIN patient_program ON patient_program.patient_id=patient.patient_id AND patient_program.program_id=?"
+                    + " LEFT JOIN patient_identifier consent ON consent.patient_id=patient.patient_id AND consent.identifier_type=99"
                     + " where patient.voided=0 AND person_attribute.voided=0";
 
 
@@ -132,6 +135,7 @@ public class PatientDao {
                 tempMap.put("next_date", rs.getString("next_date"));
                 tempMap.put("pepfar_id", rs.getString("pepfar_id"));
                 tempMap.put("hospitalNumber", rs.getString("hospitalNumber"));
+                tempMap.put("consent", rs.getString("consent"));
                 allPatients.add(tempMap);
             }
 
@@ -146,31 +150,31 @@ public class PatientDao {
 	
 	public List<String> getAllPatientsPhoneNumbers() throws SQLException {             
         
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        Connection con = null;
-        List<String> allPatientPhoneNumbers = new ArrayList<>();
-        try {
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+            Connection con = null;
+            List<String> allPatientPhoneNumbers = new ArrayList<>();
+            try {
 
-            con = Database.connectionPool.getConnection();
+                con = Database.connectionPool.getConnection();
 
 
-            String query = "SELECT DISTINCT person_attribute.value AS phone_number FROM person_attribute"
-                    +  " JOIN obs ON obs.person_id=person_attribute.person_id AND obs.concept_id=5096 AND DATE(obs.value_datetime) >= DATE(NOW()) - INTERVAL 30 DAY"                    
-                    + " where person_attribute.voided=0";
-            stmt = con.prepareStatement(query);
-            rs = stmt.executeQuery();
+                String query = "SELECT DISTINCT person_attribute.value AS phone_number FROM person_attribute"
+                        +  " JOIN obs ON obs.person_id=person_attribute.person_id AND obs.concept_id=5096 AND DATE(obs.value_datetime) >= DATE(NOW()) - INTERVAL 30 DAY"                    
+                        + " where person_attribute.voided=0";
+                stmt = con.prepareStatement(query);
+                rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                allPatientPhoneNumbers.add(rs.getString("phone_number"));
+                while (rs.next()) {
+                    allPatientPhoneNumbers.add(rs.getString("phone_number"));
+                }
+                return allPatientPhoneNumbers;
+
+            } catch (SQLException ex) {
+                Database.handleException(ex);
+                return null;
+            } finally {
+                Database.cleanUp(rs, stmt, con);
             }
-            return allPatientPhoneNumbers;
-            
-        } catch (SQLException ex) {
-            Database.handleException(ex);
-            return null;
-        } finally {
-            Database.cleanUp(rs, stmt, con);
         }
-    }
 }

@@ -27,13 +27,13 @@
     </div>
 </nav>
 
-<h1 id="program">ART SMS Reminder Service</h1>
+<h1 id="program">ART SMS Reminder Service - V1</h1>
 <div style="text-align: center"><h5 style="text-align: center !important; color: green; font-size: smaller;"><span>Last SMS Sent Date: <%=dformatter.formatDate(lastSentDate)%></span>
     </h5></div>
 <fieldset>
     <legend>Filters</legend>
 
-    <div class="row">
+    <div class="row" style="width: 100% !important;">
         <div class="col-sm-2 col-md-2">
             <select class="form-control" name="program_id" id="program_id">
                 <option value="1" selected>ART</option>
@@ -107,7 +107,7 @@
             </td>
             <td><a class="btn btn-primary btn-sm" style=" color: white !important" href="#" id="sendSMS" onclick="return confirm('Are you sure you want to send SMS to selected patients?')">Send SMS</a>
             </td>
-            <!--<td><a href="numberchecks.page" class="btn btn-warning btn-sm">Phone Number Validation</a></td>-->
+            <td><a href="numberchecks.page" class="btn btn-warning btn-sm">Patient Consent</a></td>
             <!-- <td><a href="invalidnumbers.page" class="btn btn-danger btn-sm" style="color: white !important;">Invalid Numbers</a>-->
 
             <td><a href="sentmessages.page" class="btn btn-success btn-sm" style="color: white !important;">Sent Messages</a>
@@ -127,10 +127,10 @@
 
     <h2 id="pagetitle" style="text-align: center !important;">Patients on Appointment for Tomorrow and Next</h2>
 
-    <table id="filteredPatients">
+    <table id="filteredPatients" class="table table-responsive" style="width: 100% !important; position: relative;">
         <thead>
         <tr>
-            <th><input type="checkbox" id="select_all"><small style="white-space: nowrap;">Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Status/Action</th>
+            <th style="width: 5% !important;"><input type="checkbox" id="select_all"><small style="white-space: nowrap;">Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Consent</th><th>Status/Action</th>
         </tr>
         </thead>
 
@@ -138,12 +138,19 @@
         <%
             if (patients != null) {
                 for (int i = 0; i < patients.size(); i++) {
+                    String style = ""; 
+                    String consent = "";
+                if(patients.get(i).get("consent")=="Yes"){
+                 style =   " style = 'background-color: #BEFAF5;'";
+                 consent = "Yes"
+                }
         %>
-        <tr>
+            
+        <tr<%=style%>>
             <td><input type="checkbox" value="select"
                        onClick="addNumber('<%= patients.get(i).get('phone_number').replace(' ','').replace('-',',')+"','"+patients.get(i).get('next_date'); %>')" class="num_selector"></td>
             <td><%=patients.get(i).get("pepfar_id") != null ? patients.get(i).get("pepfar_id") : "Negative"%></td>
-            <td><%=patients.get(i).get("hospitalNumber")%></td>
+            <td style="font-size: 0.8em;"><%=patients.get(i).get("hospitalNumber")%></td>
             <%
                     String phoneno = patients.get(i).get("phone_number");
                     phoneno = phoneno.replaceAll(" ", "");
@@ -153,6 +160,7 @@
             %>
             <td><%=phoneno%></td>
             <td><%=dformatter.formatDate(patients.get(i).get("next_date"))%></td>
+            <td><%=consent%></td>
             <td  style="color: white !important;">
 
                 <% if (patients.get(i).get("phone_number") == "" || patients.get(i).get("phone_number").length() < 11) { %>
@@ -186,6 +194,40 @@
             changeMonth: true,
             yearRange: "-30:+0",
             autoclose: true
+        });
+    
+    
+        jq('#filteredPatients thead tr').clone(true).appendTo('#filteredPatients thead');
+        jq('#filteredPatients thead tr:eq(1) th:not(:last)').each(function(i) {
+            var title = jq(this).text();
+            jq(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" value="" style="width: 100%;" />');
+
+            jq('input', this).on('keyup change', function() {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
+
+        var table = jq('#filteredPatients').DataTable({
+            orderCellsTop: true,
+            fixedHeader: true,
+            "order": [
+                [5, "asc"]
+            ],
+            "paging": false,
+            "pageLength": 50,
+            "filter": true,
+            "ordering": true,
+            deferRender: true,
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
         });
     });
 
@@ -253,7 +295,7 @@
                         }
 
                         if (nodays > 0) {
-                            if (i == patients.length) {
+                            if (i == patients.length - 1) {
                                 // phoneNumbers1 += cleanedPhoneNumber;
                                 if(nodays==1){
                                     message1 += "A";
@@ -265,9 +307,7 @@
                                     messages += "N"+next_appointment_text;
                                     phoneNumbersOthers += cleanedPhoneNumber;
                                 }
-                                // messages += "Next" + nodays + "Days";
-
-                               
+                                // messages += "Next" + nodays + "Days";                               
 
                             } else {
                                 // phoneNumbers1 += cleanedPhoneNumber + ",";
@@ -309,7 +349,10 @@
                     messages = message;
                 }
                 */
-
+    
+                // console.log("Day One Numbers: "+phoneNumbers1);
+                // console.log("Day Two Numbers: "+phoneNumbers2);
+    
                 if(phoneNumbers1!=""){
                     jq.getJSON('${ui.actionLink("sendSms")}', {
                             phoneNumbers1: phoneNumbers1,
@@ -321,10 +364,12 @@
                         function (response) {
                             console.log(response);      
                         
-                            if(response=="Successful"){
-                                    alert("SMS Sent Successfully, Click OK continue!"); 
-                            }else{
-                                    alert("Unsuccessful! The message was not sent, check your network and try again"); 
+                            if(phoneNumbers2==""){
+                                if(response=="Successful"){
+                                        alert("SMS Sent Successfully, Click OK continue!"); 
+                                }else{
+                                        alert("Unsuccessful! The message was not sent, check your network and try again"); 
+                                }
                             }
                                              
                     });
@@ -399,13 +444,14 @@
                 var patients = data;
                 // console.table(patients);
 
-                var html = "<table><thead><tr><th><input type='checkbox' id='select_all'><small style='white-space: nowrap;'>Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Status/Action</th></tr></thead><tbody>";
+                var html = "<table id='filteredPatients'><thead><tr><th><input type='checkbox' id='select_all'><small style='white-space: nowrap;'>Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Consent</th><th>Status/Action</th></tr></thead><tbody>";
 
 
                 if (patients != null) {
                     var allphonenos = "";
                     var allappdates = "";
-
+                    
+                    
                     for (var i = 0; i < patients.length; i++) {
                         let phno = patients[i]["phone_number"].replace(/ /g, "");
 
@@ -415,12 +461,18 @@
 
                         let nextdated = "'" + patients[i]["next_date"] + "'";
                         var pepfar_id = patients[i]["pepfar_id"] != null ? patients[i]["pepfar_id"] : "HIV Negative";
-                        html += "<tr>";
+                        var style = '';
+                        if(patients[i]["consent"]=='Yes'){
+                            style = " style = 'background-color: #BEFAF5;'";
+                        }
+    
+                        html += "<tr"+style+">";
                         html += '<td><input name="allrecip[]" type="checkbox" value="select" onClick="addNumber(' + phono2 + ',' + String(nextdated) + ')"></td>';
                         html += '<td>' + pepfar_id + '</td>';
                         html += '<td>' + patients[i]["hospitalNumber"] + '</td>';
                         html += '<td>' + phono + '</td>';
                         html += '<td>' + patients[i]["next_date"].substring(0, 10) + '</td>';
+                        html += '<td>' + patients[i]["consent"] + '</td>';
                         html += '<td><a href="../registrationapp/editSection.page?patientId=' + patients[i]["patient_id"] + '&sectionId=contactInfo&appId=referenceapplication.registrationapp.registerPatient" class="btn btn-info btn-sm small"> &#10004; Valid</a></td>';
                         html += "</tr>";
                         
