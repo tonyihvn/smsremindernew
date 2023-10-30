@@ -5,10 +5,6 @@
  */
 package org.openmrs.module.smsreminder.api.dao;
 
-import org.openmrs.api.db.hibernate.DbSession;
-import org.openmrs.api.db.hibernate.DbSessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,22 +20,6 @@ import java.util.Map;
 
 public class PatientDao {
 	
-	@Autowired
-	DbSessionFactory sessionFactory;
-	
-	public DbSession getSession() {
-		return sessionFactory.getCurrentSession();
-	}
-	
-	//	public Session getHibernateSession() {
-	//		return sessionFactory.getHibernateSessionFactory().getCurrentSession();
-	//	}
-	//
-	public void setSessionFactory(DbSessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-	
-	//
 	public List<Map<String, String>> getAllPatients(int program_id) throws SQLException {             
         
         PreparedStatement stmt = null;
@@ -50,19 +30,20 @@ public class PatientDao {
 
             con = Database.connectionPool.getConnection();
 
-
-            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id, consent.identifier AS consent FROM patient"
+            String query = " SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, o.value_datetime AS next_date, patient_program.program_id AS program_id, COALESCE(consent.identifier, 'No') AS consent FROM patient "
                     + " LEFT JOIN patient_identifier ON patient_identifier.patient_id=patient.patient_id AND patient_identifier.identifier_type=4 "
                     + " JOIN patient_identifier hospno ON hospno.patient_id=patient.patient_id AND hospno.identifier_type=5 "
-                    + " LEFT JOIN person_attribute ON person_attribute.person_id=patient.patient_id AND person_attribute.person_attribute_type_id=8"
-                    + " JOIN patient_program ON patient_program.patient_id=patient.patient_id AND patient_program.program_id=?"
-                    + " LEFT JOIN patient_identifier consent ON consent.patient_id=patient.patient_id AND consent.identifier_type=99"
-                    + " JOIN obs ON obs.person_id=patient.patient_id AND (DATEDIFF(obs.value_datetime, CURDATE()) = 1 OR DATEDIFF(obs.value_datetime, CURDATE()) = 2)"
-                    + " where patient.voided=0 AND person_attribute.voided=0";
+                    + " LEFT JOIN person_attribute ON person_attribute.person_id=patient.patient_id AND person_attribute.person_attribute_type_id=8 "
+                    + " JOIN patient_program ON patient_program.patient_id=patient.patient_id AND patient_program.program_id=? "
+                    + " LEFT JOIN patient_identifier consent ON consent.patient_id=patient.patient_id AND consent.identifier_type=99 "
+                    + " JOIN obs o on patient.patient_id=o.person_id "
+                    + " JOIN encounter e on patient.patient_id=e.patient_id "
+                    + " WHERE (e.form_id=27 OR e.form_id=14) AND o.concept_id=5096 AND patient.voided=0 AND person_attribute.voided=0 AND o.voided=0 AND (DATEDIFF(o.value_datetime, CURDATE()) = 1 OR DATEDIFF(o.value_datetime, CURDATE()) = 2) ";
 
             // int i = 1;
             int i = 1;
             stmt = con.prepareStatement(query);
+
             stmt.setInt(i++, program_id);
             rs = stmt.executeQuery();
 
@@ -106,7 +87,7 @@ public class PatientDao {
 
             //stmt = Database.conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
 
-            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id, consent.identifier AS consent FROM patient"
+            String query = "SELECT DISTINCT patient.patient_id, patient_identifier.identifier AS pepfar_id, hospno.identifier AS hospitalNumber, person_attribute.value AS phone_number, obs.value_datetime AS next_date, patient_program.program_id AS program_id, COALESCE(consent.identifier, 'No') AS consent FROM patient"
                     + " LEFT JOIN patient_identifier ON patient_identifier.patient_id=patient.patient_id AND patient_identifier.identifier_type=4 "
                     + " JOIN patient_identifier hospno ON hospno.patient_id=patient.patient_id AND hospno.identifier_type=5 "
                     + " LEFT JOIN person_attribute ON person_attribute.person_id=patient.patient_id AND person_attribute.person_attribute_type_id=8"

@@ -65,7 +65,7 @@
 </fieldset>
 <hr>
 
-<div class="row">
+<div class="row" style="width: 100% !important;">
     <%
         String allphonenos = "";
         String allappdates = "";
@@ -82,10 +82,11 @@
         }
     %>
 
-    <table>
+    <table class="table table-responsive" style="width: 98% !important; margin: 1% !important">
+    <tbody style="width: 98% !important; margin: 1% !important">
         <tr>
 
-            <td>
+            <td style="width: 14% !important;">
                 <input type="radio" id="first" name="route" value="first">
                 
                 <label for="first" style="font-size: 9px;">Route 1</label><br>
@@ -93,7 +94,7 @@
                 <label for="second" style="font-size: 9px;">Route 2</label>
 
             </td>
-            <td>
+            <td style="width: 14% !important;">
                 <select class="form-control" name="title" id="title" readonly>
                     <option value="ATTENTION" selected>ATTENTION</option>
                     <option value="READ">READ</option>
@@ -103,16 +104,17 @@
                     <option value="THANK YOU">THANK YOU</option>
                 </select>
             </td>
-            <td><input type="text" id="message" name="message" value="" placeholder="Custom Message" class="form-control" readonly>
+            <td style="width: 14% !important;"><input type="text" id="message" name="message" value="" placeholder="Custom Message" class="form-control" readonly>
             </td>
-            <td><a class="btn btn-primary btn-sm" style=" color: white !important" href="#" id="sendSMS" onclick="return confirm('Are you sure you want to send SMS to selected patients?')">Send SMS</a>
+            <td style="width: 14% !important;"><a class="btn btn-primary btn-sm" style=" color: white !important" href="#" id="sendSMS" onclick="return confirm('Are you sure you want to send SMS to selected patients?')">Send SMS</a>
             </td>
-            <td><a href="numberchecks.page" class="btn btn-warning btn-sm">Patient Consent</a></td>
+            <td style="width: 14% !important;"><a href="numberchecks.page" class="btn btn-warning btn-sm">Patient Consent</a></td>
             <!-- <td><a href="invalidnumbers.page" class="btn btn-danger btn-sm" style="color: white !important;">Invalid Numbers</a>-->
 
-            <td><a href="sentmessages.page" class="btn btn-success btn-sm" style="color: white !important;">Sent Messages</a>
+            <td style="width: 14% !important;"><a href="sentmessages.page" class="btn btn-success btn-sm" style="color: white !important;">Sent Messages</a>
             </td>
         </tr>
+    </tbody>
     </table>
 
     
@@ -127,7 +129,7 @@
 
     <h2 id="pagetitle" style="text-align: center !important;">Patients on Appointment for Tomorrow and Next</h2>
 
-    <table id="filteredPatients" class="table table-responsive" style="width: 100% !important; position: relative;">
+    <table id="filteredPatients" class="table table-responsive" style="width: 98% !important; position: relative;  margin: 1% !important">
         <thead>
         <tr>
             <th style="width: 5% !important;"><input type="checkbox" id="select_all"><small style="white-space: nowrap;">Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Consent</th><th>Status/Action</th>
@@ -297,30 +299,30 @@
                         if (nodays > 0) {
                             if (i == patients.length - 1) {
                                 // phoneNumbers1 += cleanedPhoneNumber;
-                                if(nodays==1){
-                                    message1 += "A";
-                                    phoneNumbers1 += cleanedPhoneNumber;
-                                }else if(nodays==2){
-                                    message2 += "AA";
-                                    phoneNumbers2 += cleanedPhoneNumber;
-                                }else{
-                                    messages += "N"+next_appointment_text;
+                                // if(nodays==1){
+                                //     message1 += "A";
+                                //     phoneNumbers1 += cleanedPhoneNumber;
+                                // }else if(nodays==2){
+                                //     message2 += "AA";
+                                //     phoneNumbers2 += cleanedPhoneNumber;
+                                // }else{
+                                    messages += "A"+next_appointment_text;
                                     phoneNumbersOthers += cleanedPhoneNumber;
-                                }
-                                // messages += "Next" + nodays + "Days";                               
+                                // }
+                                // // messages += "Next" + nodays + "Days";
 
                             } else {
                                 // phoneNumbers1 += cleanedPhoneNumber + ",";
-                                if(nodays==1){
-                                    message1 += "A,";
-                                    phoneNumbers1 += cleanedPhoneNumber + ",";
-                                }else if(nodays==2){
-                                    message2 += "AA,";
-                                    phoneNumbers2 += cleanedPhoneNumber + ",";
-                                }else{
-                                    messages += "N"+next_appointment_text+",";
+                                // if(nodays==1){
+                                //     message1 += "A,";
+                                //     phoneNumbers1 += cleanedPhoneNumber + ",";
+                                // }else if(nodays==2){
+                                //     message2 += "AA,";
+                                //     phoneNumbers2 += cleanedPhoneNumber + ",";
+                                // }else{
+                                    messages += "A"+next_appointment_text+",";
                                     phoneNumbersOthers += cleanedPhoneNumber + ",";
-                                }
+                                // }
                                 // messages += "Next" + nodays + "Days,";
                                 
                             }
@@ -444,7 +446,7 @@
                 var patients = data;
                 // console.table(patients);
 
-                var html = "<table id='filteredPatients'><thead><tr><th><input type='checkbox' id='select_all'><small style='white-space: nowrap;'>Select All</small></th><th>Pepfar ID</th><th>Hospital No</th><th>Phone number</th><th>Next Appointment Date</th><th>Consent</th><th>Status/Action</th></tr></thead><tbody>";
+                var html = "<table id='filteredPatients' class='table table-responsive' style='width: 98% !important; margin: 1% !important';><thead><tr><th><input type='checkbox' id='select_all'><small style='white-space: nowrap;'>Select All</small></th><th style='width: 15%;'>Pepfar ID</th><th style='width: 15%;'>Hospital No</th><th style='width: 15%;'>Phone number</th><th style='width: 15%;'>Next Appointment Date</th><th style='width: 15%;'>Consent</th><th style='width: 15%;'>Status/Action</th></tr></thead><tbody>";
 
 
                 if (patients != null) {

@@ -5,20 +5,20 @@
  */
 package org.openmrs.module.smsreminder.fragment.controller;
 
-import com.google.gson.Gson;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.smsreminder.api.dao.Database;
+import org.openmrs.module.smsreminder.api.dao.PatientDao;
+import org.openmrs.ui.framework.fragment.FragmentModel;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.openmrs.ui.framework.fragment.FragmentModel;
-
-import javax.servlet.http.HttpServletRequest;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import org.openmrs.module.smsreminder.api.dao.Database;
-import org.openmrs.module.smsreminder.api.dao.PatientDao;
+import java.util.Properties;
 
 /**
  * @author Tony
@@ -31,6 +31,8 @@ public class SentmessagesFragmentController {
 		Database.initConnection();
 		List<String> allPatientsPhoneNumbers = patientDao.getAllPatientsPhoneNumbers();
 		// System.out.println("All Phone Numbers: " + allPatientsPhoneNumbers);
+		String facilityDatimCode = Context.getAdministrationService().getGlobalProperty("facility_datim_code");
+		model.addAttribute("facilityDatimCode", facilityDatimCode);
 		model.addAttribute("allPatientsPhoneNumbers", allPatientsPhoneNumbers);
 	}
 	
@@ -39,12 +41,22 @@ public class SentmessagesFragmentController {
 		LocalDate dateObj = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String today = dateObj.format(formatter);
+		String pageNumber = "1";
+
+		Properties props;
+
+		props = Context.getRuntimeProperties();
+
+		String smsAuth = props.getProperty("connection.smsAuth");
+		
+		if (request.getParameter("pageNumber") != "") {
+			pageNumber = request.getParameter("pageNumber");
+		}
 		
 		LocalDate thirtyDaysAgo = dateObj.minusDays(30);
 		System.out.println("30 days Ago: " + thirtyDaysAgo);
-		// String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom=2023-01-01&DateTo=" + today;
-		String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom=" + thirtyDaysAgo + "&DateTo="
-		        + today;
+		// String url = "https://api.smslive247.com/api/v4/sms?PageNo=1&PageSize=500&DateFrom="+thirtyDaysAgo+"&DateTo=" + today;
+		String url = "https://api.smslive247.com/api/v4/sms?PageNumber=" + pageNumber + "&PageSize=500";
 		
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -54,7 +66,7 @@ public class SentmessagesFragmentController {
 		
 		//add request header
 		con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		con.setRequestProperty("Authorization", "MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f");
+		con.setRequestProperty("Authorization", smsAuth);
 		int responseCode = con.getResponseCode();
 		System.out.println("\nSending 'GET' request to URL : " + url);
 		System.out.println("Response Code : " + responseCode);

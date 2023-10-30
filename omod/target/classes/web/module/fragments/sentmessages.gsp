@@ -57,88 +57,122 @@
 
         <div id="sentmessagesArea">Retrieving sent messages, please wait ...</div>
         <h6>Note: You can see report for last 30 days </h6>
+    <div style="float: right; text-align: right;">
+        <a class="btn btn-" id="pageNumberPlus" data-page-number="1" href="#">Next Page</a>
+    </div>
      
 
         
 <script type="text/javascript">
-    
-    var cleanedPhoneNumber = "";
-    var allphonenumbers = [];
-
-    <%     
-        if (allPatientsPhoneNumbers != null && allPatientsPhoneNumbers.size()) {
-            for (int i = 0; i < allPatientsPhoneNumbers.size(); i++) {               
-    %>
-                cleanedPhoneNumber = <%= allPatientsPhoneNumbers.get(i); %>;
-                cleanedPhoneNumber = cleanedPhoneNumber.toString().replace(' ', '').replace('-', '')
-                
-                // console.log("Cleaned Number:"+cleanedPhoneNumber);
-                if (cleanedPhoneNumber.toString().length >=10) {
-                    cleanedPhoneNumber.toString().indexOf('0') == 0 ? cleanedPhoneNumber = cleanedPhoneNumber.replace('0', '234') : cleanedPhoneNumber;
-                    if (cleanedPhoneNumber.toString().substring(0, 3) != '234') {
-                        cleanedPhoneNumber = '234' + cleanedPhoneNumber;
-                    }
-                    
-                    allphonenumbers.push(cleanedPhoneNumber);   
-                }
-                    
-    <%
-            }
-        }
-    %>
-    
-    
 
     var jq = jQuery;
 
-    jq(function () {
-        jq(".date").datepicker({
-            dateFormat: 'yy-mm-dd',
-            changeYear: true,
-            changeMonth: true,
-            yearRange: "-30:+0",
-            autoclose: true
-        });
-    });
-
-
     jq(document).ready(function (e) {
+
+        var pageNumber = jq("#pageNumberPlus").data("page-number");
+        var elementClicked;
+        jq("#pageNumberPlus").click(function (e) {
+            jq("#pageNumberPlus").data("page-number", pageNumber++);
+            elementClicked = true;
             myAjax({
+                pageNumber: pageNumber
             }, '${ ui.actionLink("getSentMessages") }').then(function (response) {
                 var sentmessages = JSON.parse(response);
-                console.table(sentmessages.data);
-
+                console.table(sentmessages);
+                var facilityDatimCode = "<%=facilityDatimCode%>";
                 var html = "<table id='sentmsgs'><thead><tr><th>Pepfar ID</th><th>Phone number</th><th>Message</th><th>Delivery Status</th><th>Date</th></tr></thead><tbody>";
 
 
                 if (sentmessages != null) {
-                   
-                    for (var i = 0; i < sentmessages.data.length; i++) {
-                        
-                        if(allphonenumbers.includes(sentmessages.data[i]["mobileNumber"]))
-                        {
-                       
+
+                    for (var i = 0; i < sentmessages.length; i++) {
+
+
+                        if(sentmessages[i]["messageText"].slice(-11)==facilityDatimCode) {
+
                             html += "<tr>";
                             html += '<td>-</td>';
-                            html += '<td>' + sentmessages.data[i]["mobileNumber"] + '</td>';
-                            html += '<td>' + sentmessages.data[i]["messageText"] + '</td>';
-                            html += '<td>' + sentmessages.data[i]["reports"][0]["status"] + '</td>';
-                            html += '<td>' + sentmessages.data[i]["submitDate"] + '</td>';
+                            html += '<td>' + sentmessages[i]["mobileNumber"] + '</td>';
+                            html += '<td>' + sentmessages[i]["messageText"].slice(0, -13) + '</td>';
+                            html += '<td>' + sentmessages[i]["reports"][0]["status"] + '</td>';
+                            html += '<td>' + sentmessages[i]["submitDate"] + '</td>';
 
-                            html += "</tr>"; 
+                            html += "</tr>";
                         }
+
                     }
 
                     html += "</tbody></table>";
 
                     jq("#sentmessagesArea").html(html);
-                    
+
                     jq('#sentmsgs').DataTable({
                         pagingType: 'full_numbers',
                     });
                 }
 
-            });     
-               
+            });
+        });
+
+        if( elementClicked != true ) {
+            alert(pageNumber);
+            myAjax({
+                pageNumber: pageNumber
+            }, '${ ui.actionLink("getSentMessages") }').then(function (response) {
+                var sentmessages = JSON.parse(response);
+                console.table(sentmessages);
+                var facilityDatimCode = "<%=facilityDatimCode%>";
+                var html = "<table id='sentmsgs'><thead><tr><th>Pepfar ID</th><th>Phone number</th><th>Message</th><th>Delivery Status</th><th>Date</th></tr></thead><tbody>";
+
+
+                if (sentmessages != null) {
+
+                    for (var i = 0; i < sentmessages.length; i++) {
+
+
+                        if(sentmessages[i]["messageText"].slice(-11)==facilityDatimCode) {
+
+                            html += "<tr>";
+                            html += '<td>-</td>';
+                            html += '<td>' + sentmessages[i]["mobileNumber"] + '</td>';
+                            html += '<td>' + sentmessages[i]["messageText"].slice(0, -13) + '</td>';
+                            html += '<td>' + sentmessages[i]["reports"][0]["status"] + '</td>';
+                            html += '<td>' + sentmessages[i]["submitDate"] + '</td>';
+
+                            html += "</tr>";
+                        }
+
+                    }
+
+                    html += "</tbody></table>";
+
+                    jq("#sentmessagesArea").html(html);
+
+                    jq('#sentmsgs').DataTable({
+                        pagingType: 'full_numbers',
+                    });
+                }
+
+            });
+
+        }
+
+
+
+
+
+
+
+
     });
+
+
+
+
+
+
+
+
+
+
 </script>

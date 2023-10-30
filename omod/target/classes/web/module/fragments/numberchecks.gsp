@@ -26,10 +26,10 @@
     <a href="#" id="validate" class="btn btn-primary btn-sm" style="float: left">--- Validate All From Network</a>
     <hr>
 
-    <table id="filteredPatients" class="table table-responsive">
+    <table id="filteredPatients" class="table table-responsive" style="width: 100% !important;">
         <thead>
         <tr>
-            <th>SN</th><th>Pepfar ID</th><th>Consented</th><th>Consent Given?</th><th>Phone number</th><th>Status/Action</th>
+            <th>SN</th><th style="width: 18%">Pepfar ID</th><th style="width: 18%">Consented</th><th style="width: 18%">Consent Given?</th><th style="width: 18%">Phone number</th><th style="width: 18%">Status/Action</th>
         </tr>
         </thead>
 
@@ -77,7 +77,7 @@
 
     var jq = jQuery;
     jq(document).ready(function () {
-        jq('#filteredPatients').DataTable();
+        // jq('#filteredPatients').DataTable();
 
         jq(".savebtn").hide();
 
@@ -116,7 +116,6 @@
                 'copy', 'csv', 'excel', 'pdf', 'print'
             ]
         });
-    });
 
 
     });

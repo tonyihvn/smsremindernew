@@ -14,9 +14,9 @@
 
     <!-- Wraps SmsreminderService methods in DB transactions and OpenMRS interceptors,
     which set audit info like dateCreated, changedBy, etc.-->
-    <bean id="smsreminder.PatientDao" class="org.openmrs.module.smsreminder.api.dao.PatientDao">
-        <property name="sessionFactory">
-            <ref bean="dbSessionFactory"/>
-        </property>
-    </bean>
+    <!--<bean id="smsreminder.PatientDao" class="org.openmrs.module.smsreminder.api.dao.PatientDao">-->
+        <!--<property name="sessionFactory">-->
+            <!--<ref bean="dbSessionFactory"/>-->
+        <!--</property>-->
+    <!--</bean>-->
 </beans>

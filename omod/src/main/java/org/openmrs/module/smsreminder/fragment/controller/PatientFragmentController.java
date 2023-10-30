@@ -30,7 +30,8 @@ import okhttp3.*;
  * @author Nwokoma
  */
 public class PatientFragmentController {
-	
+
+
 	PatientDao patientDao = new PatientDao();
 	
 	public void controller(FragmentModel model) throws Exception {
@@ -87,7 +88,7 @@ public class PatientFragmentController {
 	private String postSMS(String message, String phoneNumbers, String Route, String cmessage, String title)
 	        throws Exception {
 		String result = "";
-		
+		String facilityDatimCode = Context.getAdministrationService().getGlobalProperty("facility_datim_code");
 		try {
 			String appId = Long.toString(new Date().getTime());
 			message = String.valueOf(message);
@@ -98,6 +99,12 @@ public class PatientFragmentController {
 			}
 			
 			if (Route.trim().equals("second")) {
+
+				Properties props;
+
+				props = Context.getRuntimeProperties();
+
+				String smsAuth = props.getProperty("connection.smsAuth");
 				
 				OkHttpClient client = new OkHttpClient();
 				
@@ -109,10 +116,10 @@ public class PatientFragmentController {
 				
 				MediaType mediaType = MediaType.parse("application/*+json");
 				RequestBody body = RequestBody.create(mediaType, "{\"senderID\":\"Forward\",\"messageText\":\"" + message
-				        + "\",\"mobileNumber\":\"" + phoneNumbers + "\",\"route\":\"1\"}");
+				        + " F:" + facilityDatimCode + "\",\"mobileNumber\":\"" + phoneNumbers + "\",\"route\":\"1\"}");
 				Request request = new Request.Builder().url("https://api.smslive247.com/api/v4/sms").post(body)
 				        .addHeader("accept", "application/json").addHeader("content-type", "application/*+json")
-				        .addHeader("Authorization", "MA-80b6f4e3-071f-4e9d-9550-52415c40cb9f").build();
+				        .addHeader("Authorization", smsAuth).build();
 				
 				Response response = client.newCall(request).execute();
 				
@@ -125,31 +132,29 @@ public class PatientFragmentController {
 				}
 				
 			} else {
-				URL url = new URL(
-				        "https://api2.infobip.com/api/sendsms/plain?user=SteveJ&password=%40%40Health2345&type=LongSMS&sender=IHVN&SMS&appid="
-				                + appId + "&GSM=" + phoneNumbers + "&Text=" + message);
-				
+				URL url = new URL("http://google.com");
+
 				StringBuilder strBuf = new StringBuilder();
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 				con.setRequestMethod("GET");
 				con.setRequestProperty("Accept", "application/json");
-				
+
 				Map<String, String> parameters = new HashMap<String, String>();
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());
-				
+
 				out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
 				System.out.println(con.getResponseCode());
-				
+
 				BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
 				String output;
 				while ((output = reader.readLine()) != null)
 					strBuf.append(output);
-				
+
 				// System.out.println(strBuf.toString());
 				out.flush();
 				out.close();
-				
+
 				result = "Successful";
 			}
 		}

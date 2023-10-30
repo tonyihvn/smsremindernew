@@ -1,0 +1,5 @@
+org\openmrs\module\smsreminder\fragment\controller\SettingsFragmentController.class
+org\openmrs\module\smsreminder\fragment\controller\NumberchecksFragmentController.class
+org\openmrs\module\smsreminder\fragment\controller\SentmessagesFragmentController.class
+org\openmrs\module\smsreminder\fragment\controller\PatientFragmentController.class
+org\openmrs\module\smsreminder\fragment\controller\InvalidnumbersFragmentController.class
